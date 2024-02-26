@@ -1,1 +1,189 @@
+Урок 2. Введение в подготовку данных для аналитиков. Таблицы фактов и таблицы измерений
 
+Скачайте датасет fifаs2.сsv. Проанализируйте его и определите, какие данные являются неполными. Удалите ненужные колонки и недостающие значения.
+
+Найдите в датафрейме полные дубликаты и удалите их. Значения могут быть одинаковыми, но написаны по-разному. Например, может отличаться размер регистра (заглавные и строчные буквы). Особое внимание уделить колонке с названиями команд.
+
+Напишите функцию, которая добавит колонку с разбиением возраста по группам: до 20, от 20 до 30, от 30 до 36 и старше 36. Посчитайте количество футболистов в каждой категории.
+
+import pandas as pd
+/
+df = pd.read_csv('C:/Users/Pobeda/Desktop/geekbrains/ETL/fifa_s2.csv')
+df.head()
+ID	Name	Age	Nationality	Overall	Potential	Club	Value	Wage	Preferred Foot	International Reputation	Skill Moves	Position	Joined	Contract Valid Until	Height	Weight	Release Clause
+0	1179	G. Buffon	40	Italy	88	88	Paris Saint-Germain	4000.0	77	Right	4.0	1.0	GK	2018	01/01/2019	6.333333	203.0	7400.0
+1	5479	Casillas	37	Spain	82	82	FC Porto	1500.0	10	Left	4.0	1.0	NaN	2015	01/01/2019	6.083333	185.0	3000.0
+2	8205	Braga	35	Portugal	70	70	CD Aves	750.0	5	Right	1.0	3.0	LCM	2017	01/01/2019	5.916667	165.0	1600.0
+3	9014	A. Robben	34	Netherlands	84	84	FC Bayern München	15500.0	110	Left	4.0	4.0	RM	2009	01/01/2019	5.916667	176.0	25600.0
+4	19521	J. Ibehre	35	England	61	61	Cambridge United	120.0	2	Right	1.0	2.0	ST	2017	01/01/2019	6.333333	203.0	210.0
+df.shape
+(2399, 18)
+df.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 2399 entries, 0 to 2398
+Data columns (total 18 columns):
+ #   Column                    Non-Null Count  Dtype  
+---  ------                    --------------  -----  
+ 0   ID                        2399 non-null   int64  
+ 1   Name                      2399 non-null   object 
+ 2   Age                       2399 non-null   int64  
+ 3   Nationality               2392 non-null   object 
+ 4   Overall                   2399 non-null   int64  
+ 5   Potential                 2399 non-null   int64  
+ 6   Club                      2158 non-null   object 
+ 7   Value                     2142 non-null   float64
+ 8   Wage                      2399 non-null   int64  
+ 9   Preferred Foot            2399 non-null   object 
+ 10  International Reputation  2389 non-null   float64
+ 11  Skill Moves               2393 non-null   float64
+ 12  Position                  2378 non-null   object 
+ 13  Joined                    2399 non-null   int64  
+ 14  Contract Valid Until      2126 non-null   object 
+ 15  Height                    2399 non-null   float64
+ 16  Weight                    2399 non-null   float64
+ 17  Release Clause            2396 non-null   float64
+dtypes: float64(6), int64(6), object(6)
+memory usage: 337.5+ KB
+df.isna().sum() / len(df) * 100
+ID                           0.000000
+Name                         0.000000
+Age                          0.000000
+Nationality                  0.291788
+Overall                      0.000000
+Potential                    0.000000
+Club                        10.045852
+Value                       10.712797
+Wage                         0.000000
+Preferred Foot               0.000000
+International Reputation     0.416840
+Skill Moves                  0.250104
+Position                     0.875365
+Joined                       0.000000
+Contract Valid Until        11.379742
+Height                       0.000000
+Weight                       0.000000
+Release Clause               0.125052
+dtype: float64
+()
+df.describe(include = "all")
+ID	Name	Age	Nationality	Overall	Potential	Club	Value	Wage	Preferred Foot	International Reputation	Skill Moves	Position	Joined	Contract Valid Until	Height	Weight	Release Clause
+count	2399.000000	2399	2399.000000	2392	2399.000000	2399.000000	2158	2142.000000	2399.000000	2399	2389.000000	2393.000000	2378	2399.000000	2126	2399.000000	2399.000000	2396.000000
+unique	NaN	2371	NaN	102	NaN	NaN	81	NaN	NaN	2	NaN	NaN	27	NaN	16	NaN	NaN	NaN
+top	NaN	J. Rodríguez	NaN	Spain	NaN	NaN	Manchester City	NaN	NaN	Right	NaN	NaN	GK	NaN	01/01/2019	NaN	NaN	NaN
+freq	NaN	3	NaN	300	NaN	NaN	33	NaN	NaN	1843	NaN	NaN	275	NaN	555	NaN	NaN	NaN
+mean	212033.680700	NaN	25.213005	NaN	69.115048	74.115048	NaN	5980.873016	24.178825	NaN	1.308497	2.469703	NaN	2016.145894	NaN	5.955300	166.802782	10690.033498
+std	30549.399068	NaN	4.633622	NaN	8.060195	7.190957	NaN	11963.420681	49.552098	NaN	0.687175	0.844531	NaN	2.085829	NaN	0.219249	15.241015	21780.029323
+min	1179.000000	NaN	16.000000	NaN	47.000000	48.000000	NaN	20.000000	0.000000	NaN	1.000000	1.000000	NaN	2000.000000	NaN	5.250000	121.000000	35.000000
+25%	195105.000000	NaN	22.000000	NaN	64.000000	69.000000	NaN	500.000000	1.000000	NaN	1.000000	2.000000	NaN	2016.000000	NaN	5.833333	154.000000	1100.000000
+50%	218745.000000	NaN	25.000000	NaN	69.000000	74.000000	NaN	1100.000000	5.000000	NaN	1.000000	2.000000	NaN	2017.000000	NaN	6.000000	165.000000	3800.000000
+75%	234576.000000	NaN	29.000000	NaN	74.000000	79.000000	NaN	6000.000000	22.000000	NaN	1.000000	3.000000	NaN	2018.000000	NaN	6.083333	176.000000	7500.000000
+max	246608.000000	NaN	44.000000	NaN	94.000000	95.000000	NaN	118500.000000	565.000000	NaN	5.000000	5.000000	NaN	2018.000000	NaN	6.583333	214.000000	228100.000000
+df.Club.unique()
+df.Club.unique()
+array(['Paris Saint-Germain', 'FC Porto', 'CD Aves', 'FC Bayern München',
+       'Cambridge United', 'CD Tondela', 'Juventus', 'Milan', 'Celtic',
+       'BSC Young Boys', 'Malmö FF', 'Lazio', 'Arsenal', '1. FC Köln',
+       'Bury', 'Roma', 'Carlisle United', 'Manchester United',
+       'Burton Albion', 'Inter', 'Chelsea', 'Cagliari', 'Cádiz CF',
+       'AS Monaco', '1. FSV Mainz 05', 'Burnley', 'Manchester City',
+       'CD Nacional', 'Bristol City', "CD O'Higgins", 'CD Palestino',
+       'Brescia', '1. FC Kaiserslautern', 'Brisbane Roar', 'Liverpool',
+       'CD Feirense', 'Aston Villa', nan, 'Cardiff City',
+       'CF Rayo Majadahonda', 'CD Tenerife',
+       'CD Universidad de Concepción', 'Atalanta',
+       'Borussia Mönchengladbach', 'Brighton & Hove Albion', 'CD Lugo',
+       'CD Numancia', 'Sevilla FC', 'CD Leganés', 'CA Osasuna',
+       'Lokomotiv Moscow', 'Bayer 04 Leverkusen', 'FC Barcelona',
+       'Real Madrid', 'Central Coast Mariners', 'Cerezo Osaka',
+       'Charlton Athletic', '1. FC Union Berlin', 'Udinese',
+       'Changchun Yatai FC', 'Bristol Rovers', 'FC Basel 1893',
+       'Fc Barcelona', '1. FC Magdeburg', 'Córdoba CF', 'Livingston FC',
+       'CF Reus Deportiu', 'Borussia Dortmund', 'CD Huachipato',
+       '1. FC Heidenheim 1846', '1. FC Nürnberg', 'Bursaspor',
+       'Chamois Niortais Football Club', 'Carpi', 'CD Antofagasta',
+       'AS Béziers', 'CD Everton de Viña del Mar', 'FC Heidenheim 1846',
+       'Aalborg BK', 'Ceará Sporting Club', 'Chapecoense', 'FC Köln'],
+      dtype=object)
+df['Club'].unique()
+df['Club'].unique()
+array(['Paris Saint-Germain', 'FC Porto', 'CD Aves', 'FC Bayern München',
+       'Cambridge United', 'CD Tondela', 'Juventus', 'Milan', 'Celtic',
+       'BSC Young Boys', 'Malmö FF', 'Lazio', 'Arsenal', '1. FC Köln',
+       'Bury', 'Roma', 'Carlisle United', 'Manchester United',
+       'Burton Albion', 'Inter', 'Chelsea', 'Cagliari', 'Cádiz CF',
+       'AS Monaco', '1. FSV Mainz 05', 'Burnley', 'Manchester City',
+       'CD Nacional', 'Bristol City', "CD O'Higgins", 'CD Palestino',
+       'Brescia', '1. FC Kaiserslautern', 'Brisbane Roar', 'Liverpool',
+       'CD Feirense', 'Aston Villa', nan, 'Cardiff City',
+       'CF Rayo Majadahonda', 'CD Tenerife',
+       'CD Universidad de Concepción', 'Atalanta',
+       'Borussia Mönchengladbach', 'Brighton & Hove Albion', 'CD Lugo',
+       'CD Numancia', 'Sevilla FC', 'CD Leganés', 'CA Osasuna',
+       'Lokomotiv Moscow', 'Bayer 04 Leverkusen', 'FC Barcelona',
+       'Real Madrid', 'Central Coast Mariners', 'Cerezo Osaka',
+       'Charlton Athletic', '1. FC Union Berlin', 'Udinese',
+       'Changchun Yatai FC', 'Bristol Rovers', 'FC Basel 1893',
+       'Fc Barcelona', '1. FC Magdeburg', 'Córdoba CF', 'Livingston FC',
+       'CF Reus Deportiu', 'Borussia Dortmund', 'CD Huachipato',
+       '1. FC Heidenheim 1846', '1. FC Nürnberg', 'Bursaspor',
+       'Chamois Niortais Football Club', 'Carpi', 'CD Antofagasta',
+       'AS Béziers', 'CD Everton de Viña del Mar', 'FC Heidenheim 1846',
+       'Aalborg BK', 'Ceará Sporting Club', 'Chapecoense', 'FC Köln'],
+      dtype=object)
+def clab_name(Name):
+    if '1.' in Name:
+        return ''
+    else:
+        return ''
+df['Club'].unique()
+array(['Paris Saint-Germain', 'FC Porto', 'CD Aves', 'FC Bayern München',
+       'Cambridge United', 'CD Tondela', 'Juventus', 'Milan', 'Celtic',
+       'BSC Young Boys', 'Malmö FF', 'Lazio', 'Arsenal', '1. FC Köln',
+       'Bury', 'Roma', 'Carlisle United', 'Manchester United',
+       'Burton Albion', 'Inter', 'Chelsea', 'Cagliari', 'Cádiz CF',
+       'AS Monaco', '1. FSV Mainz 05', 'Burnley', 'Manchester City',
+       'CD Nacional', 'Bristol City', "CD O'Higgins", 'CD Palestino',
+       'Brescia', '1. FC Kaiserslautern', 'Brisbane Roar', 'Liverpool',
+       'CD Feirense', 'Aston Villa', nan, 'Cardiff City',
+       'CF Rayo Majadahonda', 'CD Tenerife',
+       'CD Universidad de Concepción', 'Atalanta',
+       'Borussia Mönchengladbach', 'Brighton & Hove Albion', 'CD Lugo',
+       'CD Numancia', 'Sevilla FC', 'CD Leganés', 'CA Osasuna',
+       'Lokomotiv Moscow', 'Bayer 04 Leverkusen', 'FC Barcelona',
+       'Real Madrid', 'Central Coast Mariners', 'Cerezo Osaka',
+       'Charlton Athletic', '1. FC Union Berlin', 'Udinese',
+       'Changchun Yatai FC', 'Bristol Rovers', 'FC Basel 1893',
+       'Fc Barcelona', '1. FC Magdeburg', 'Córdoba CF', 'Livingston FC',
+       'CF Reus Deportiu', 'Borussia Dortmund', 'CD Huachipato',
+       '1. FC Heidenheim 1846', '1. FC Nürnberg', 'Bursaspor',
+       'Chamois Niortais Football Club', 'Carpi', 'CD Antofagasta',
+       'AS Béziers', 'CD Everton de Viña del Mar', 'FC Heidenheim 1846',
+       'Aalborg BK', 'Ceará Sporting Club', 'Chapecoense', 'FC Köln'],
+      dtype=object)
+df.drop('Overall', axis=1, inplace=True)
+df.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 2399 entries, 0 to 2398
+Data columns (total 17 columns):
+ #   Column                    Non-Null Count  Dtype  
+---  ------                    --------------  -----  
+ 0   ID                        2399 non-null   int64  
+ 1   Name                      2399 non-null   object 
+ 2   Age                       2399 non-null   int64  
+ 3   Nationality               2392 non-null   object 
+ 4   Potential                 2399 non-null   int64  
+ 5   Club                      2158 non-null   object 
+ 6   Value                     2142 non-null   float64
+ 7   Wage                      2399 non-null   int64  
+ 8   Preferred Foot            2399 non-null   object 
+ 9   International Reputation  2389 non-null   float64
+ 10  Skill Moves               2393 non-null   float64
+ 11  Position                  2378 non-null   object 
+ 12  Joined                    2399 non-null   int64  
+ 13  Contract Valid Until      2126 non-null   object 
+ 14  Height                    2399 non-null   float64
+ 15  Weight                    2399 non-null   float64
+ 16  Release Clause            2396 non-null   float64
+dtypes: float64(6), int64(5), object(6)
+memory usage: 318.7+ KB
+​
