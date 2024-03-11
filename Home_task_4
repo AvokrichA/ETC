@@ -1,8 +1,46 @@
 В процессе, планирую закончить до 22-00(МСК) 11/03/2024 
 
+drop table movies; 
+
 CREATE TABLE movies (
     movies_type character varying not null , 
     director character varying not null, 
     year_of_issue int not null, 
-    length_in_minutes TIME not null, 
-    rate int not null)
+    length_in_minutes int not null, 
+    rate int not null);
+
+--2. Сделайте таблицы для горизонтального партицирования по году выпуска (до 1990, 1990 -2000, 2000- 2010, 2010-2020, после 2020).
+create table movies_year_1990 (check (year_of_issue <=1990)) inherits (movies);
+create table movies_year_2000 (check (year_of_issue> 1990 and year_of_issue <= 2000)) inherits (movies);
+create table movies_year_2010 (check (year_of_issue> 2000 and year_of_issue <= 2010)) inherits (movies);
+create table movies_year_2020 (check (year_of_issue >2010 and year_of_issue <= 2020) inherits (movies);
+create table movies_year_after_2020 (check (year_of_issue >2020) inherits (movies);
+
+CREATE RULE insert_movies_year_1990 AS ON INSERT TO movies WHERE (year_of_issue <=1990) DO INSTEAD INSERT INTO movies_year_1990 VALUES (NEW.*);
+CREATE RULE insert_movies_year_2000 AS ON INSERT TO movies WHERE (year_of_issue> 1990 and year_of_issue <= 2000) DO INSTEAD INSERT INTO movies_year_2000 VALUES (NEW.*);
+CREATE RULE insert_movies_year_2010 AS ON INSERT TO movies WHERE (year_of_issue> 2000 and year_of_issue <= 2010) DO instead INSERT INTO movies_year_2010 VALUES (NEW.*);
+CREATE RULE insert_movies_year_2020 AS ON INSERT TO movies WHERE (year_of_issue> 2010 and year_of_issue <= 2020) DO instead INSERT INTO movies_year_2020 VALUES (NEW.*);
+CREATE RULE insert_movies_year_after_2020 AS ON INSERT TO movies WHERE (year_of_issue >2020) DO instead INSERT INTO movies_year_after_2020 VALUES (NEW.*);
+
+--3. Сделайте таблицы для горизонтального партицирования по длине фильма (до 40 минута, от 40 до 90 минут, от 90 до 130 минут, более 130 минут).
+    
+create table length_in_minutes_40 (check (length_in_minutes <= 40)) inherits (movies);
+create table length_in_minutes_90 (check (length_in_minutes > 40 and length_in_minutes <= 90)) inherits (movies);
+create table length_in_minutes_130 (check (length_in_minutes > 90 and length_in_minutes <= 130)) inherits (movies);
+create table length_in_minutes_long_130 (check (length_in_minutes > 130) inherits (movies);
+
+CREATE RULE insert_length_in_minutes_40 AS ON INSERT TO movies WHERE (length_in_minutes <= 40) DO INSTEAD INSERT INTO length_in_minutes_40 VALUES (NEW.*);
+CREATE RULE insert_length_in_minutes_90 AS ON INSERT TO movies WHERE (length_in_minutes > 40 and length_in_minutes <= 90) DO INSTEAD INSERT INTO length_in_minutes_90 VALUES (NEW.*);
+CREATE RULE insert_length_in_minutes_130 AS ON INSERT TO movies WHERE (length_in_minutes > 90 and length_in_minutes <= 130) DO instead INSERT INTO length_in_minutes_130 VALUES (NEW.*);
+CREATE RULE insert_length_in_minutes_long_130 AS ON INSERT TO movies WHERE (length_in_minutes > 130) DO instead INSERT INTO length_in_minutes_long_130 VALUES (NEW.*);
+    
+    
+--4. Сделайте таблицы для горизонтального партицирования по рейтингу фильма (ниже 5, от 5 до 8, от 8до 10).
+
+create table movies_rate_5 (check (rate <=5)) inherits (movies);
+create table movies_rate_8 (check (rate > 5 and rate <= 8)) inherits (movies);
+create table movies_rate_10 (check (rate >8 and rate <= 10) inherits (movies);
+
+CREATE RULE insert_movies_rate_5 AS ON INSERT TO movies WHERE (rate <=5) DO INSTEAD INSERT INTO movies_rate_5 VALUES (NEW.*);
+CREATE RULE insert_movies_rate_8 AS ON INSERT TO movies WHERE (rate > 5 and rate <= 8) DO INSTEAD INSERT INTO movies_rate_8 VALUES (NEW.*);
+CREATE RULE movies_rate_10 AS ON INSERT TO movies WHERE (rate >8 and rate <= 10) DO instead INSERT INTO movies_rate_10 VALUES (NEW.*);
