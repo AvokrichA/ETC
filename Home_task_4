@@ -1,3 +1,5 @@
+В процессе, планирую закончить до 22-00(МСК) 11/03/2024 
+
 CREATE TABLE movies (
     movies_type character varying not null , 
     director character varying not null, 
