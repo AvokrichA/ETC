@@ -1,0 +1,6 @@
+CREATE TABLE movies (
+    movies_type character varying not null , 
+    director character varying not null, 
+    year_of_issue int not null, 
+    length_in_minutes TIME not null, 
+    rate int not null)
