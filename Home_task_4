@@ -46,26 +46,26 @@ CREATE RULE movies_rate_10 AS ON INSERT TO movies WHERE (rate >8 and rate <= 10)
 INSERT INTO movies
 (movies_type, director, year_of_issue, length_in_minutes, rate)
 VALUES
-('драма', 'Фрэнк Дарабонт', 1999, 189, 9)
+('драма', 'Фрэнк Дарабонт', 1999, 189, 9);
 
 INSERT INTO movies
 (movies_type, director, year_of_issue, length_in_minutes, rate)
 VALUES
-('драма', 'Оливье Накаш', 2011, 112, 9)
+('драма', 'Оливье Накаш', 2011, 112, 9);
 
 INSERT INTO movies
 (movies_type, director, year_of_issue, length_in_minutes, rate)
 VALUES
-('ужасы', 'Фридрих Вильгельм Мурнау', 1922, 94, 7)
+('ужасы', 'Фридрих Вильгельм Мурнау', 1922, 94, 7);
 
 INSERT INTO movies
 (movies_type, director, year_of_issue, length_in_minutes, rate)
 VALUES
-('ужасы', 'Ричард Уэнк', 1986, 93, 5)
+('ужасы', 'Ричард Уэнк', 1986, 93, 5);
 
 INSERT INTO movies
 (movies_type, director, year_of_issue, length_in_minutes, rate)
 VALUES
-('мьюзикл', 'Егор Дружинин', 2009, 93, 4)
+('мьюзикл', 'Егор Дружинин', 2009, 93, 4);
 
 SELECT * FROM movies
